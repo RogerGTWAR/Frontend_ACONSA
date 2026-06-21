@@ -61,19 +61,42 @@ const Upbar = ({ title }) => {
         shadow-lg
         backdrop-blur
         sm:px-6
+        md:left-20
+        md:px-6
         lg:left-48
         lg:px-8
       "
     >
-      <div className="min-w-0">
-        <p className="text-sm font-medium text-cyan-100">
+      <div className="min-w-0 pr-3 pl-14 md:pl-0">
+        <p
+          className="
+            truncate
+            text-xs
+            font-medium
+            text-cyan-100
+            sm:text-sm
+          "
+        >
           Panel Administrativo
         </p>
 
-        <h1 className="truncate text-sm font-bold text-white">{title}</h1>
+        <h1
+          className="
+            max-w-[140px]
+            truncate
+            text-sm
+            font-bold
+            text-white
+            sm:max-w-[260px]
+            md:max-w-[360px]
+            lg:max-w-[520px]
+          "
+        >
+          {title}
+        </h1>
       </div>
 
-      <div className="relative flex items-center gap-3 sm:gap-4">
+      <div className="relative flex shrink-0 items-center gap-2 sm:gap-3">
         <div className="relative">
           <button
             type="button"
@@ -95,6 +118,8 @@ const Upbar = ({ title }) => {
               focus:outline-none
               focus:ring-4
               focus:ring-cyan-400/20
+              sm:h-11
+              sm:w-11
             "
             aria-label="Notificaciones"
           >
@@ -149,7 +174,7 @@ const Upbar = ({ title }) => {
           className="
             flex
             items-center
-            gap-3
+            gap-2
             rounded-2xl
             border
             border-white/10
@@ -163,6 +188,7 @@ const Upbar = ({ title }) => {
             focus:outline-none
             focus:ring-4
             focus:ring-cyan-400/20
+            sm:gap-3
             sm:px-3
           "
         >
@@ -180,12 +206,12 @@ const Upbar = ({ title }) => {
             "
           />
 
-          <div className="hidden min-w-0 flex-col leading-tight sm:flex">
-            <span className="max-w-[180px] truncate text-sm font-bold text-white">
+          <div className="hidden min-w-0 flex-col leading-tight md:flex">
+            <span className="max-w-[120px] truncate text-sm font-bold text-white lg:max-w-[180px]">
               {user?.usuario ?? "Usuario"}
             </span>
 
-            <span className="max-w-[180px] truncate text-sm text-cyan-100">
+            <span className="max-w-[120px] truncate text-xs text-cyan-100 lg:max-w-[180px] lg:text-sm">
               Rol: {user?.cargo ?? "Sin cargo"}
             </span>
           </div>
@@ -196,9 +222,11 @@ const Upbar = ({ title }) => {
             fill="none"
             viewBox="0 0 24 24"
             className={`
+              hidden
               shrink-0
               transition-transform
               duration-200
+              sm:block
               ${open ? "rotate-180" : ""}
             `}
           >
@@ -218,7 +246,8 @@ const Upbar = ({ title }) => {
               absolute
               right-0
               top-14
-              w-64
+              w-72
+              max-w-[calc(100vw-1.5rem)]
               overflow-hidden
               rounded-3xl
               border
@@ -226,6 +255,7 @@ const Upbar = ({ title }) => {
               bg-slate-900
               shadow-2xl
               animate-fadeIn
+              sm:w-64
             "
           >
             <div className="border-b border-slate-700 bg-slate-800 px-4 py-4">
