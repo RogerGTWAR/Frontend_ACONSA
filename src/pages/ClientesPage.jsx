@@ -246,7 +246,7 @@ function ClientesPage() {
 
   if (loading) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-slate-200 px-4">
+      <div className="flex min-h-screen w-full items-center justify-center bg-slate-200 px-4">
         <div className="rounded-3xl border border-slate-300 bg-slate-100 px-8 py-6 text-center shadow-xl">
           <p className="text-sm font-bold text-slate-800">
             Cargando clientes...
@@ -263,19 +263,21 @@ function ClientesPage() {
   return (
     <div
       className="
-        h-full
+        min-h-screen
         w-full
         min-w-0
-        overflow-hidden
+        overflow-x-hidden
+        overflow-y-auto
         bg-slate-200
         px-3
         py-4
+        pb-8
         sm:px-4
         lg:px-5
         xl:px-6
       "
     >
-      <div className="flex h-full w-full min-w-0 flex-col gap-5 overflow-hidden">
+      <div className="flex w-full min-w-0 flex-col gap-5">
         <section
           className="
             w-full
@@ -303,7 +305,7 @@ function ClientesPage() {
                 </p>
               </div>
 
-              <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-4 xl:w-[680px]">
+              <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:w-[680px]">
                 <HeaderBox label="Clientes" value={totalClientes} />
                 <HeaderBox label="Con contacto" value={clientesConContacto} />
                 <HeaderBox label="Con teléfono" value={clientesConTelefono} />
@@ -444,11 +446,8 @@ function ClientesPage() {
         <section
           className="
             flex
-            min-h-0
             w-full
-            flex-1
             flex-col
-            overflow-hidden
             rounded-3xl
             border
             border-slate-300
@@ -474,7 +473,7 @@ function ClientesPage() {
             </span>
           </div>
 
-          <div className="min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden pr-1">
+          <div className="w-full overflow-x-auto overflow-y-visible pr-1">
             <div className="w-full min-w-0">
               {vistaTarjetas ? (
                 <ClientesCard

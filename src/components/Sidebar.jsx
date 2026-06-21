@@ -54,6 +54,16 @@ const Sidebar = () => {
     return () => window.removeEventListener("storage", listener);
   }, []);
 
+  useEffect(() => {
+    if (openMobile) {
+      setOpenSistema(true);
+      setOpenProyectos(true);
+      setOpenInventario(true);
+      setOpenAdministracion(true);
+      setOpenPanelReportes(true);
+    }
+  }, [openMobile]);
+
   const tienePermiso = (url) => {
     if (!url) return false;
     return permisos.includes(url);
@@ -478,15 +488,15 @@ const Sidebar = () => {
         {sidebarContent}
       </aside>
 
-      {/* Botón para abrir sidebar en móvil */}
+      {/* Botón móvil para abrir el sidebar */}
       <button
         type="button"
         onClick={() => setOpenMobile(true)}
         className="
           fixed
           left-4
-          top-4
-          z-40
+          top-2
+          z-[90]
           flex
           h-12
           w-12
@@ -500,6 +510,7 @@ const Sidebar = () => {
           shadow-xl
           md:hidden
         "
+        aria-label="Abrir menú"
       >
         <span className="text-2xl leading-none">☰</span>
       </button>
@@ -511,7 +522,7 @@ const Sidebar = () => {
           className="
             fixed
             inset-0
-            z-50
+            z-[80]
             bg-slate-950/60
             backdrop-blur-sm
             md:hidden
@@ -519,13 +530,13 @@ const Sidebar = () => {
         />
       )}
 
-      {/* Sidebar móvil */}
+      {/* Sidebar móvil completo */}
       <aside
         className={`
           fixed
           left-0
           top-0
-          z-50
+          z-[90]
           flex
           h-screen
           w-72
@@ -545,19 +556,20 @@ const Sidebar = () => {
           ${openMobile ? "translate-x-0" : "-translate-x-full"}
         `}
       >
-        <div className="flex items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center justify-between px-4 py-4">
+          <div className="flex min-w-0 items-center gap-2">
             <img
               src="/Logo.jpg"
-              className="h-11 w-11 rounded-2xl object-cover"
+              className="h-11 w-11 shrink-0 rounded-2xl object-cover"
               alt="Logo"
             />
 
-            <div className="text-white">
-              <p className="text-sm font-bold leading-4">
+            <div className="min-w-0 text-white">
+              <p className="truncate text-sm font-bold leading-4">
                 ACONSA
               </p>
-              <p className="text-xs text-blue-100">
+
+              <p className="truncate text-xs text-blue-100">
                 Panel de gestión
               </p>
             </div>
@@ -570,13 +582,17 @@ const Sidebar = () => {
               flex
               h-10
               w-10
+              shrink-0
               items-center
               justify-center
               rounded-2xl
               bg-white/10
               text-2xl
               text-white
+              transition
+              hover:bg-white/20
             "
+            aria-label="Cerrar menú"
           >
             ×
           </button>
