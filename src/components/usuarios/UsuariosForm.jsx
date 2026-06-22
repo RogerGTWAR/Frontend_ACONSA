@@ -21,7 +21,7 @@ const UsuariosForm = ({ onSubmit, onClose, initialData, isEdit }) => {
   useEffect(() => {
     if (initialData) {
       setForm({
-        empleado_id: initialData.empleado_id ?? "",
+        empleado_id: initialData.empleado_id ?? initialData.id ?? "",
         usuario: initialData.usuario ?? "",
         contrasena: "",
       });
@@ -60,7 +60,9 @@ const UsuariosForm = ({ onSubmit, onClose, initialData, isEdit }) => {
 
   const empleadoAsignado = useMemo(() => {
     return (empleados || []).find(
-      (empleado) => Number(empleado.id) === Number(form.empleado_id)
+      (empleado) =>
+        Number(empleado.id ?? empleado.empleado_id) ===
+        Number(form.empleado_id)
     );
   }, [form.empleado_id, empleados]);
 
@@ -83,7 +85,7 @@ const UsuariosForm = ({ onSubmit, onClose, initialData, isEdit }) => {
   const handleAsignarEmpleado = (empleado) => {
     setForm((prev) => ({
       ...prev,
-      empleado_id: empleado.id,
+      empleado_id: empleado.id ?? empleado.empleado_id,
     }));
 
     setErrors((prev) => ({
@@ -255,7 +257,7 @@ const UsuariosForm = ({ onSubmit, onClose, initialData, isEdit }) => {
                 <div className="mt-3 max-h-52 overflow-y-auto rounded-2xl border border-slate-300 bg-slate-100 shadow-md">
                   {empleadosFiltrados.map((empleado) => (
                     <button
-                      key={empleado.id}
+                      key={empleado.id ?? empleado.empleado_id}
                       type="button"
                       onClick={() => handleAsignarEmpleado(empleado)}
                       className="block w-full border-b border-slate-200 px-4 py-3 text-left text-sm font-medium text-slate-700 transition last:border-b-0 hover:bg-blue-100"
@@ -266,7 +268,7 @@ const UsuariosForm = ({ onSubmit, onClose, initialData, isEdit }) => {
 
                       <span className="mt-1 block text-sm text-slate-600">
                         Cédula: {empleado.cedula || "No registrada"} | Rol:{" "}
-                        {empleado.rolNombre || "Sin rol"}
+                        {empleado.rolNombre || empleado.cargo || "Sin rol"}
                       </span>
                     </button>
                   ))}
@@ -293,7 +295,10 @@ const UsuariosForm = ({ onSubmit, onClose, initialData, isEdit }) => {
                     </p>
 
                     <p className="mt-1 text-sm font-medium text-blue-700">
-                      Rol: {empleadoAsignado.rolNombre || "Sin rol"}
+                      Rol:{" "}
+                      {empleadoAsignado.rolNombre ||
+                        empleadoAsignado.cargo ||
+                        "Sin rol"}
                     </p>
                   </div>
 

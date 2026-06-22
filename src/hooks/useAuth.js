@@ -40,29 +40,42 @@ export function useAuth() {
   const [usuariosLoading, setUsuariosLoading] = useState(false);
   const [usuariosError, setUsuariosError] = useState("");
 
+  const clearSession = () => {
+    setUser(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("menu");
+  };
+
+  const saveSession = async (usr) => {
+    setUser(usr);
+    localStorage.setItem("user", JSON.stringify(usr));
+
+    if (usr?.usuario_id) {
+      const menu = await fetchMenuByUser(usr.usuario_id);
+      localStorage.setItem("menu", JSON.stringify(menu));
+    }
+  };
+
   const loadUser = async () => {
     try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        clearSession();
+        return;
+      }
+
       const res = await meRequest();
 
       if (res?.ok && res.user) {
-        const usr = res.user;
-
-        setUser(usr);
-        localStorage.setItem("user", JSON.stringify(usr));
-
-        const menu = await fetchMenuByUser(usr.usuario_id);
-        localStorage.setItem("menu", JSON.stringify(menu));
+        await saveSession(res.user);
       } else {
-        setUser(null);
-        localStorage.removeItem("user");
-        localStorage.removeItem("menu");
+        clearSession();
       }
     } catch (error) {
       console.error("loadUser error:", error);
-
-      setUser(null);
-      localStorage.removeItem("user");
-      localStorage.removeItem("menu");
+      clearSession();
     } finally {
       setLoading(false);
     }
@@ -93,8 +106,36 @@ export function useAuth() {
   }, []);
 
   const login = async (payload) => {
-    await loginRequest(payload);
-    await loadUser();
+    const res = await loginRequest(payload);
+
+    console.log("Respuesta login:", res);
+
+    const token =
+      res?.token ||
+      res?.accessToken ||
+      res?.data?.token ||
+      res?.data?.accessToken;
+
+    const usr =
+      res?.user ||
+      res?.usuario ||
+      res?.data?.user ||
+      res?.data?.usuario ||
+      null;
+
+    if (!token) {
+      throw new Error("El backend no devolvió un token de autenticación.");
+    }
+
+    localStorage.setItem("token", token);
+
+    if (usr) {
+      await saveSession(usr);
+    } else {
+      await loadUser();
+    }
+
+    return res;
   };
 
   const register = async (payload) => {
@@ -118,12 +159,14 @@ export function useAuth() {
   };
 
   const logout = async () => {
-    await logoutRequest();
-
-    setUser(null);
-    setUsuarios([]);
-    localStorage.removeItem("user");
-    localStorage.removeItem("menu");
+    try {
+      await logoutRequest();
+    } catch (error) {
+      console.error("logout error:", error);
+    } finally {
+      setUsuarios([]);
+      clearSession();
+    }
   };
 
   const addUsuario = async (payload) => {
