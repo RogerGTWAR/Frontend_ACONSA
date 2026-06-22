@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
   loginRequest,
   registerRequest,
@@ -7,13 +8,37 @@ import {
   resetPasswordRequest,
   meRequest,
   logoutRequest,
+  fetchUsuarios,
+  fetchUsuarioById,
+  updateUsuarioRequest,
+  deleteUsuarioRequest,
 } from "../data/auth.js";
 
 import { fetchMenuByUser } from "../data/menus.js";
 
+const toUsuarioUI = (u) => ({
+  usuario_id: u.usuario_id,
+  id: u.usuario_id,
+
+  usuario: u.usuario ?? "",
+  empleado_id: u.empleado_id ?? null,
+
+  nombres: u.nombres ?? "",
+  apellidos: u.apellidos ?? "",
+  rol_id: u.rol_id ?? null,
+  cargo: u.cargo ?? "",
+
+  cedula: u.cedula ?? "",
+  empleado: u.empleado ?? "",
+});
+
 export function useAuth() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const [usuarios, setUsuarios] = useState([]);
+  const [usuariosLoading, setUsuariosLoading] = useState(false);
+  const [usuariosError, setUsuariosError] = useState("");
 
   const loadUser = async () => {
     try {
@@ -32,13 +57,34 @@ export function useAuth() {
         localStorage.removeItem("user");
         localStorage.removeItem("menu");
       }
-    } catch (e) {
-      console.error("loadUser error:", e);
+    } catch (error) {
+      console.error("loadUser error:", error);
+
       setUser(null);
       localStorage.removeItem("user");
       localStorage.removeItem("menu");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUsuarios = async () => {
+    try {
+      setUsuariosLoading(true);
+      setUsuariosError("");
+
+      const list = await fetchUsuarios();
+      const safeList = Array.isArray(list) ? list : [];
+
+      const data = safeList.map(toUsuarioUI);
+
+      setUsuarios(data);
+      return data;
+    } catch (error) {
+      setUsuariosError(error.message || "Error al cargar usuarios");
+      return [];
+    } finally {
+      setUsuariosLoading(false);
     }
   };
 
@@ -63,20 +109,71 @@ export function useAuth() {
     return await forgotPasswordRequest({ usuario });
   };
 
-  const resetPassword = async (token, contrasena) => {
-    return await resetPasswordRequest({ token, contrasena });
+  const resetPassword = async (usuario, codigo, contrasena) => {
+    return await resetPasswordRequest({
+      usuario,
+      codigo,
+      contrasena,
+    });
   };
 
   const logout = async () => {
     await logoutRequest();
+
     setUser(null);
+    setUsuarios([]);
     localStorage.removeItem("user");
     localStorage.removeItem("menu");
+  };
+
+  const addUsuario = async (payload) => {
+    const created = await registerRequest({
+      cedula: payload.cedula,
+      usuario: payload.usuario,
+      contrasena: payload.contrasena,
+    });
+
+    await loadUsuarios();
+
+    return created?.usuario ? toUsuarioUI(created.usuario) : created;
+  };
+
+  const editUsuario = async (id, payload) => {
+    const updated = await updateUsuarioRequest(id, {
+      empleado_id: payload.empleado_id,
+      usuario: payload.usuario,
+      contrasena: payload.contrasena,
+      rol_id: payload.rol_id,
+    });
+
+    await loadUsuarios();
+
+    return updated ? toUsuarioUI(updated) : null;
+  };
+
+  const removeUsuario = async (id) => {
+    await deleteUsuarioRequest(id);
+
+    setUsuarios((prev) =>
+      prev.filter((usuario) => Number(usuario.usuario_id) !== Number(id))
+    );
+
+    return true;
+  };
+
+  const getUsuarioById = async (id) => {
+    const usuario = await fetchUsuarioById(id);
+    return usuario ? toUsuarioUI(usuario) : null;
   };
 
   return {
     user,
     loading,
+
+    usuarios,
+    usuariosLoading,
+    usuariosError,
+
     login,
     register,
     autoRegister,
@@ -84,5 +181,11 @@ export function useAuth() {
     resetPassword,
     logout,
     reload: loadUser,
+
+    reloadUsuarios: loadUsuarios,
+    addUsuario,
+    editUsuario,
+    removeUsuario,
+    getUsuarioById,
   };
 }
